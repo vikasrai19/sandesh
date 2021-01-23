@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "721055856214",
+    "project_id": "sandesh-c12c6",
+    "storage_bucket": "sandesh-c12c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721055856214:android:ee82f265024bbffc802df7",
+        "android_client_info": {
+          "package_name": "com.vikasrai19.sandesh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721055856214-t77aj4m3b41ojsk1s1avajb38jhlhpao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vikasrai19.sandesh",
+            "certificate_hash": "e00cea5e3527604a605472286058059992c5566d"
+          }
+        },
+        {
+          "client_id": "721055856214-h7nmnemhuoo8opc96rhvfh240iv0c7qi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBR1kJIsDbKixLvjJsDjFKY3R06mhN7sVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721055856214-h7nmnemhuoo8opc96rhvfh240iv0c7qi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
