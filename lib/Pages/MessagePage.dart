@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:sandesh/Helper/ContactList.dart';
 import 'package:sandesh/Helper/Database.dart';
+import 'package:sandesh/Helper/ProvidersList.dart';
 import 'package:sandesh/Helper/User.dart';
 import 'package:sandesh/Pages/ChatDetailsPage.dart';
 import 'package:sandesh/Pages/ContactChecker.dart';
@@ -37,17 +38,20 @@ class _MessagePageState extends State<MessagePage> {
     DatabaseMethods()
         .getLastMessage(phone: widget.phoneNumber.toString())
         .then((value) {
-      setState(() {
-        lastMessageSnapshot = value;
-      });
+      context.read(snapshotProviders).lastMessageSnapshot = value;
+      // setState(() {
+      //   lastMessageSnapshot = value;
+      // });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    user = Provider.of<UserData>(context);
-    final ContactList contactList = Provider.of<ContactList>(context);
+    user = context.read(userProvider);
+    final ContactList contactList = context.read(contactListProvider);
+    // newList = contactList.contactList;
     newList = contactList.contactList;
+    // chatList = user.chatRoomList;
     chatList = user.chatRoomList;
     Size size = MediaQuery.of(context).size;
 
@@ -82,79 +86,64 @@ class _MessagePageState extends State<MessagePage> {
               CustomAppBar(
                   name: "Sandesh", icon1: Icons.search, icon2: Icons.more_vert),
               SizedBox(height: 20.0),
-              Expanded(
-                child: StreamBuilder(
-                    stream: lastMessageSnapshot,
-                    builder: (context, snapshot) {
-                      return snapshot.hasData
-                          ? ListView.builder(
-                              itemCount: snapshot.data.documents.length,
-                              itemBuilder: (context, index) {
-                                var imgValue;
-                                var data = snapshot.data.documents[index];
-                                var userNo = data['users'][0] == user.phoneNo
-                                    ? data["users"][1]
-                                    : data["users"][0];
-                                // DatabaseMethods()
-                                //     .getProfileImage(roomId: userNo)
-                                //     .then((value) {
-                                //   imageSnapshot = value;
-                                //   print("Image snapshot length " +
-                                //       imageSnapshot.get('profileImg').toString());
-                                //   // imgValue =
-                                //   //     imageSnapshot.docs[0].get('profileImg');
-                                // });
-                                String name =
-                                    getName(data['users'], user.phoneNo);
-                                return name != null
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          // clear unread messages
-                                          if (data['sentBy'] != user.phoneNo &&
-                                              data['newMsgCount'] != 0) {
-                                            DatabaseMethods().setNewMessages(
-                                                roomId: data['name'], msg: []);
-                                          }
-                                          // Routing to mew page
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (_) =>
-                                                      ChatDetailsPage(
-                                                          name: name,
-                                                          roomId: data['name']
-                                                              .toString())));
-                                        },
-                                        child: UserDisplayTile(
+              Consumer(builder: (context, watch, child) {
+                final lastMsgSnapshot =
+                    watch(snapshotProviders).lastMessageSnapshot;
+                return Expanded(
+                  child: StreamBuilder(
+                      stream: lastMsgSnapshot,
+                      builder: (context, snapshot) {
+                        return snapshot.hasData
+                            ? ListView.builder(
+                                itemCount: snapshot.data.documents.length,
+                                itemBuilder: (context, index) {
+                                  var data = snapshot.data.documents[index];
+                                  String name =
+                                      getName(data['users'], user.phoneNo);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      if (data['sentBy'] != user.phoneNo &&
+                                          data['newMsgCount'] != 0) {
+                                        DatabaseMethods().setNewMessages(
+                                            roomId: data['name'], msg: []);
+                                      }
+                                      // Routing to mew page
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => ChatDetailsPage(
+                                                  name: name,
+                                                  roomId: data['name']
+                                                      .toString())));
+                                    },
+                                    child: name != null
+                                        ? UserDisplayTile(
                                             name: name.toString(),
                                             msg: isUserSent(data['sentBy'])
                                                 ? "You: " + data['lastMessage']
                                                 : data['lastMessage'],
-                                            isUnread: data['sentBy'] !=
-                                                        user.phoneNo &&
-                                                    data['newMsgCount'] != 0
-                                                ? true
-                                                : false,
-                                            unreadCount: data['sentBy'] !=
-                                                        user.phoneNo &&
-                                                    data['newMsgCount'] != 0
-                                                ? data['newMsgCount'].toString()
-                                                : 0,
-                                            time: data['msgTime'].toString()),
-                                      )
-                                    : index == 0
-                                        ? Container(
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()))
-                                        : Container();
-                              },
-                            )
-                          : Container(
-                              child: Text("No Data"),
-                            );
-                    }),
-              ),
+                                            // isUnread: data['sentBy'] !=
+                                            //                                   user.phoneNo &&
+                                            //                               data['newMsgCount'] != 0
+                                            //                           ? true
+                                            //                           : false,
+                                            //                       unreadCount: data['sentBy'] !=
+                                            //                                   user.phoneNo &&
+                                            //                               data['newMsgCount'] != 0
+                                            //                           ? data['newMsgCount']
+                                            //                               .toString()
+                                            //                           : 0,
+                                            time: data['msgTime'].toString())
+                                        : Container(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                  );
+                                },
+                              )
+                            : Container();
+                      }),
+                );
+              }),
             ],
           ),
         ),

@@ -1,54 +1,58 @@
 import 'package:firebase_core/firebase_core.dart';
 import "package:flutter/material.dart";
-import 'package:provider/provider.dart';
-import 'Helper/ContactList.dart';
 import 'Helper/HelperFunctions.dart';
-import 'Helper/User.dart';
 import 'Pages/AccountCreation.dart';
 import 'Pages/HomePage.dart';
+import 'package:flutter_riverpod/all.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatefulWidget{
+class LoginState extends ChangeNotifier {
+  bool _isLoggedIn;
 
+  bool get isLoggedIn => _isLoggedIn;
+  set isLoggedIn(bool val) {
+    print("_isLoggedIn value  : " + _isLoggedIn.toString());
+    _isLoggedIn = val;
+    print("_isLoggedIn value  : " + _isLoggedIn.toString());
+    notifyListeners();
+  }
+}
+
+final loggedInProviders = ChangeNotifierProvider((ref) => LoginState());
+
+class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-
-  bool isLoggedIn;
-
   @override
   void initState() {
-    HelperFunction.getIsLoggedInState().then((value) => {
-      setState((){
-        isLoggedIn = value;
-      })
+    HelperFunction.getIsLoggedInState().then((value) {
+      print("Got value");
+      context.read(loggedInProviders).isLoggedIn = value;
     });
     super.initState();
   }
 
-  @override 
-  Widget build(BuildContext context){
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => UserData(),),
-        // ChangeNotifierProvider(create:(_) => ChatRoomList()),
-        ChangeNotifierProvider(create: (_) => ContactList(),)
-      ],
-      child: MaterialApp(
-      title:"Sandesh",
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Color.fromRGBO(255, 145, 5, 1)
-      ),
-      home:isLoggedIn != null && isLoggedIn ? HomePage() : AccountCreation()
-    ),
-    );
+  @override
+  Widget build(BuildContext context) {
+    print("From build Method -> Value of _isLoggedIn " +
+        context.read(loggedInProviders).isLoggedIn.toString());
+    return Consumer(builder: (context, watch, child) {
+      bool isLoggedInVal = watch(loggedInProviders).isLoggedIn;
+      return MaterialApp(
+          title: "Sandesh",
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(primaryColor: Color.fromRGBO(255, 145, 5, 1)),
+          home: isLoggedInVal != null && isLoggedInVal == true
+              ? HomePage()
+              : AccountCreation());
+    });
   }
 }

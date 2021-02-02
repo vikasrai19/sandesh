@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:sandesh/Helper/ContactList.dart';
 import 'package:sandesh/Helper/Database.dart';
+import 'package:sandesh/Helper/ProvidersList.dart';
 import 'package:sandesh/Helper/User.dart';
 
 import 'ChatDetailsPage.dart';
@@ -18,8 +19,8 @@ class _ContactCheckerPageState extends State<ContactCheckerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ContactList contactList = Provider.of<ContactList>(context);
-    final UserData user = Provider.of<UserData>(context);
+    final ContactList contactList = context.read(contactListProvider);
+    final UserData user = context.read(userProvider);
     return Scaffold(
       body: contactList.isLoadFinished == false
           ? Container(
@@ -56,7 +57,10 @@ class _ContactCheckerPageState extends State<ContactCheckerPage> {
                             userUid: user.uid,
                             roomUid: chatRoomId,
                             phoneNo: user.phoneNo.replaceAll("+91", ""),
-                            phone2: user1Id == user.phoneNo.replaceAll("+91", "") ? user2Id : user1Id,
+                            phone2:
+                                user1Id == user.phoneNo.replaceAll("+91", "")
+                                    ? user2Id
+                                    : user1Id,
                             userData: user);
                         Navigator.pushReplacement(
                             context,
@@ -105,16 +109,13 @@ class _ContactCheckerPageState extends State<ContactCheckerPage> {
         }
       }
     }
-    // Sample test again
-    // Was working slow
-    // But now gained some speed
-    // Terminating the test
     if (!isFound) {
       DatabaseMethods()
           .createChatRoom(roomId: roomUid, phone1: phoneNo, phone2: phone2);
       chatRoom.add(roomUid.toString());
-      Provider.of<UserData>(context, listen: false)
-          .setValue(chatRoomListData: chatRoom);
+      context.read(userProvider).setValue(chatRoomListData: chatRoom);
+      // Provider.of<UserData>(context, listen: false)
+      //     .setValue(chatRoomListData: chatRoom);
       // DatabaseMethods().storePersonalChatRooms(
       //     userUid: phoneNo, data: {"chatRoomList": chatRoom});
       print("new chatroom created");

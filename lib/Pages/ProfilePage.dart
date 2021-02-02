@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:sandesh/Helper/HelperFunctions.dart';
-import 'package:sandesh/Helper/User.dart';
-import 'package:provider/provider.dart';
+import 'package:sandesh/Helper/ProvidersList.dart';
 import 'package:sandesh/Pages/AccountCreation.dart';
 import 'package:sandesh/Widgets/CustomAppBar.dart';
 
 class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserData>();
+    final user = context.read(userProvider);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
         body: SafeArea(
@@ -27,7 +26,7 @@ class ProfilePage extends StatelessWidget {
             )),
             Container(
               child: Center(
-                child: RaisedButton(
+                child: ElevatedButton(
                   child: Text("LogOut"),
                   onPressed: () {
                     HelperFunction.saveUserName(null);

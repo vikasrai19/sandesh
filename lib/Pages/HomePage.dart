@@ -1,12 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
-import 'package:sandesh/Helper/ContactList.dart';
 import 'package:sandesh/Helper/Database.dart';
 import 'package:sandesh/Helper/HelperFunctions.dart';
-import 'package:sandesh/Helper/User.dart';
+import 'package:sandesh/Helper/ProvidersList.dart';
 import 'package:sandesh/Pages/MessagePage.dart';
 import 'package:sandesh/Pages/ProfilePage.dart';
 import 'package:sandesh/Pages/StatusPage.dart';
@@ -20,10 +19,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
-  String userUid;
-  String userName;
-  String phoneNumber;
   Iterable<Contact> _contacts;
   Iterable<Item> phoneNo = [];
   QuerySnapshot userSnapshot;
@@ -32,17 +27,13 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> phoneList = [];
   List chatRoomList = [];
   bool isLoaded = false;
-  UserData user;
   Stream<QuerySnapshot> lastMessageSnapshot;
 
   @override
   void initState() {
-    storeValues();
+    storeValues(context);
     getPermission();
     getUsersList();
-    // getUsersList();
-    // getContacts();
-    // storeValues();
     super.initState();
   }
 
@@ -63,8 +54,6 @@ class _HomePageState extends State<HomePage> {
     final PermissionStatus permissionStatus = await _getPermission();
     if (permissionStatus == PermissionStatus.granted) {
       print("Permission granted");
-      // getUsersList();
-      // checkPhoneNumber();
       getContacts();
     }
   }
@@ -80,6 +69,7 @@ class _HomePageState extends State<HomePage> {
           chatRoomList.add(chatRoomSnapshot.docs[i].get('name'));
         }
       }
+      print("ChatRoomList Value " + chatRoomList.toString());
     });
   }
 
@@ -89,18 +79,25 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userSnapshot = value;
       });
-      // print(userSnapshot.docs[0].get('phoneNo') + " value from firestore");
+      print(userSnapshot.docs.length.toString());
+      print(userSnapshot.docs[0].get('phoneNo') + " value from firestore");
     });
   }
 
   checkPhoneNumber() {
+    print("Check PhoneNumber Called");
+    phoneList = [];
     if (userSnapshot != null &&
-        _contacts != null &&
+        context.read(contactListProvider).contacts != null &&
         userSnapshot.docs.length != 0) {
-      print("Contact Length " + _contacts.length.toString());
+      print("Contact Length " +
+          context.read(contactListProvider).contacts.length.toString());
       print("userSnapshot length " + userSnapshot.docs.length.toString());
-      for (int i = 0; i < _contacts.length; i++) {
-        Contact contact = _contacts?.elementAt(i);
+      for (int i = 0;
+          i < context.read(contactListProvider).contacts.length;
+          i++) {
+        Contact contact =
+            context.read(contactListProvider).contacts?.elementAt(i);
         if (contact.phones.length != 0) {
           if (contact.phones.elementAt(0).value.length == 10) {
             numb = "+91" + contact.phones.elementAt(0).value.trim();
@@ -115,52 +112,40 @@ class _HomePageState extends State<HomePage> {
         }
       }
       print(phoneList.toString());
-      setState(() {
-        isLoaded = true;
-      });
+      context
+          .read(contactListProvider)
+          .setValue(phoneList: phoneList, isLoaded: true);
     }
   }
 
   Future<void> getContacts() async {
     final Iterable<Contact> contacts = await ContactsService.getContacts();
-    setState(() {
-      _contacts = contacts;
-    });
-    phoneList = [];
-    if (userSnapshot != null && _contacts != null) {
+    context.read(contactListProvider).contacts = contacts;
+    if (userSnapshot != null &&
+        context.read(contactListProvider).contacts != null) {
       checkPhoneNumber();
     }
   }
 
-  Future<bool> storeValues() async {
+  Future<bool> storeValues(BuildContext context) async {
     HelperFunction.getUserName().then((value) {
       print(value.toString() + " Got value now");
-      print("USERNAME : " + userName.toString());
-      setState(() {
-        userName = value;
-      });
-      print("USERNAME : " + userName);
+      context.read(userProvider).userName = value;
     });
     HelperFunction.getUserUid().then((value) {
-      setState(() {
-        userUid = value;
-      });
-      print("User uid from shared Preferences : " + userUid);
+      context.read(userProvider).uid = value;
     });
     HelperFunction.getUserPhoneNumber().then((value) {
-      setState(() {
-        phoneNumber = value;
-      });
-      print(phoneNumber.toString());
+      context.read(userProvider).phoneNo = value;
     });
     print("Got values from shared preferences");
-    getFirebaseChatRooms(phoneNo: phoneNumber);
+    getFirebaseChatRooms(phoneNo: context.read(userProvider).phoneNo);
     return true;
   }
 
-  List<Widget> _children({String phoneNo}) => [
+  List<Widget> _children({String phone}) => [
         MessagePage(
-          phoneNumber: phoneNo,
+          phoneNumber: phone,
         ),
         StatusPage(),
         ProfilePage()
@@ -168,20 +153,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    user = Provider.of<UserData>(context);
-    Future.delayed(Duration(seconds: 1), () {
-      Provider.of<UserData>(context, listen: false).setValue(
-          userUid: userUid,
-          name: userName,
-          phoneNumber: phoneNumber.toString(),
-          chatRoomListData: chatRoomList);
-      // Provider.of<ChatRoomList>(context, listen: false).setChatRoomList(chatRoomSnapshot: chatRoomSnapshot);
-      Provider.of<ContactList>(context, listen: false)
-          .setValue(phoneList: phoneList, isLoaded: isLoaded);
-    });
     return Scaffold(
-      body: _children(phoneNo: phoneNumber.toString())[_currentIndex],
+      body: Consumer(builder: (context, watch, child) {
+        final indexValue = watch(homeScreenProvider);
+        return _children(phone: context.read(userProvider).phoneNo.toString())[
+            indexValue.currentIndex];
+      }),
       bottomNavigationBar: BottomNavigationBar(
           items: [
             BottomNavigationBarItem(
@@ -204,11 +181,9 @@ class _HomePageState extends State<HomePage> {
           elevation: 5,
           iconSize: 30.0,
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+            context.read(homeScreenProvider).setCurrentIndexValue(index);
           },
-          currentIndex: _currentIndex,
+          currentIndex: context.read(homeScreenProvider).currentIndex,
           backgroundColor: Theme.of(context).primaryColor,
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white.withOpacity(0.5)),

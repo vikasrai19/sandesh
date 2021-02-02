@@ -185,8 +185,8 @@ class _OTPPageState extends State<OTPPage> {
       await auth.verifyPhoneNumber(
           phoneNumber: widget.phoneNumber,
           verificationCompleted: (PhoneAuthCredential credential) async {
-            await auth.signInWithCredential(credential).then((value) async{
-              if (value.user != null){
+            await auth.signInWithCredential(credential).then((value) async {
+              if (value.user != null) {
                 print("Logged In Successfully");
                 await HelperFunction.saveUserUid(value.user.uid);
                 HelperFunction.saveIsLoggedInState(true);

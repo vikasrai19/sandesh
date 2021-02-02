@@ -2,7 +2,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/all.dart';
 import 'package:sandesh/Pages/OTPPage.dart';
+
+class AccountCheckerProvider extends ChangeNotifier {
+  bool _isCorrect = false;
+
+  bool get isCorrect => _isCorrect;
+
+  setIsCorrectValue(bool value) {
+    _isCorrect = value;
+    notifyListeners();
+  }
+}
 
 class AccountCreation extends StatefulWidget {
   @override
@@ -12,6 +24,9 @@ class AccountCreation extends StatefulWidget {
 class _AccountCreationState extends State<AccountCreation> {
   bool isCorrect = false;
   TextEditingController numberController = new TextEditingController();
+
+  final accountCheckerProvider =
+      ChangeNotifierProvider((ref) => AccountCheckerProvider());
 
   @override
   Widget build(BuildContext context) {
@@ -98,54 +113,19 @@ class _AccountCreationState extends State<AccountCreation> {
                                         fontSize: 20.0,
                                         fontWeight: FontWeight.w400))),
                             SizedBox(width: 5.0),
-                            Container(
-                              width: size.width * 0.65,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.0))),
-                              child: TextFormField(
-                                controller: numberController,
-                                onChanged: (value) {
-                                  if (numberController.text.length != 0 &&
-                                      value.length != 10) {
-                                    setState(() {
-                                      isCorrect = false;
-                                    });
-                                  } else {
-                                    setState(() {
-                                      isCorrect = true;
-                                    });
-                                  }
-                                },
-                                style: GoogleFonts.montserrat(fontSize: 18.0),
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Enter Number",
-                                    hintStyle: GoogleFonts.montserrat(
-                                      fontSize: 18.0,
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                    prefixIcon: Icon(Icons.mobile_friendly),
-                                    suffixIcon: Icon(
-                                        isCorrect
-                                            ? Icons.check_circle
-                                            : Icons.close_rounded,
-                                        color: numberController.text.length == 0
-                                            ? Colors.transparent
-                                            : isCorrect
-                                                ? Colors.green
-                                                : Colors.red)),
-                              ),
-                            ),
+                            phoneNoTextField(size),
                           ],
                         ),
                         SizedBox(height: 20.0),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacement(context, CupertinoPageRoute(builder: (context) => OTPPage(phoneNumber: "+91" + numberController.text,)));
+                            Navigator.pushReplacement(
+                                context,
+                                CupertinoPageRoute(
+                                    builder: (context) => OTPPage(
+                                          phoneNumber:
+                                              "+91" + numberController.text,
+                                        )));
                           },
                           child: Container(
                               alignment: Alignment.center,
@@ -168,5 +148,47 @@ class _AccountCreationState extends State<AccountCreation> {
         ),
       ),
     );
+  }
+
+  Widget phoneNoTextField(Size size) {
+    return Consumer(builder: (context, watch, child) {
+      final accountNoChecker = watch(accountCheckerProvider);
+      return Container(
+        width: size.width * 0.65,
+        height: 50.0,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+        child: TextFormField(
+          controller: numberController,
+          onChanged: (value) {
+            if (numberController.text.length != 0 && value.length != 10) {
+              context.read(accountCheckerProvider).setIsCorrectValue(false);
+            } else {
+              context.read(accountCheckerProvider).setIsCorrectValue(true);
+            }
+          },
+          style: GoogleFonts.montserrat(fontSize: 18.0),
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "Enter Number",
+              hintStyle: GoogleFonts.montserrat(
+                fontSize: 18.0,
+                color: Colors.black.withOpacity(0.5),
+              ),
+              prefixIcon: Icon(Icons.mobile_friendly),
+              suffixIcon: Icon(
+                  accountNoChecker.isCorrect
+                      ? Icons.check_circle
+                      : Icons.close_rounded,
+                  color: numberController.text.length == 0
+                      ? Colors.transparent
+                      : accountNoChecker.isCorrect
+                          ? Colors.green
+                          : Colors.red)),
+        ),
+      );
+    });
   }
 }

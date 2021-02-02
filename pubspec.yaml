@@ -26,13 +26,13 @@ dependencies:
 
   google_fonts:
   shared_preferences:
-  provider:
   firebase_auth:
   firebase_core:
   cloud_firestore:
   firebase_storage: 
   permission_handler:
   contacts_service:
+  flutter_riverpod:
 
 
   # The following adds the Cupertino Icons font to your application.

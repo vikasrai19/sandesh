@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:sandesh/Helper/Database.dart';
-import 'package:sandesh/Helper/User.dart';
+import 'package:flutter_riverpod/all.dart';
+import 'package:sandesh/Helper/ProvidersList.dart';
 import 'package:sandesh/Widgets/ChatUserHeader.dart';
 import 'package:sandesh/Widgets/MessageTile.dart';
 
@@ -75,7 +75,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    UserData user = Provider.of<UserData>(context, listen: false);
+    final user = context.read(userProvider);
     size = MediaQuery.of(context).size;
     return Scaffold(
         body: SafeArea(
@@ -161,29 +161,35 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                                 : Colors.white),
                         onPressed: () {
                           print("Send Button Pressed");
+
                           var newMsgList = [];
-                          print("Final date " + getDateAndTime()[0].toString());
-                          List dateAndTime = getDateAndTime();
-                          String finalDate = dateAndTime[0];
-                          String finalTime = dateAndTime[1];
+                          // print("Final date " + getDateAndTime()[0].toString());
+                          // List dateAndTime = getDateAndTime();
+                          // String finalDate = dateAndTime[0];
+                          // String finalTime = dateAndTime[1];
                           if (chatController.text.length != 0) {
-                            Map<String, dynamic> data = {
-                              "message": chatController.text,
-                              "sender": user.phoneNo,
-                              "time": DateTime.now().millisecondsSinceEpoch,
-                              "isLastMessage": false,
-                              "msgType": "text",
-                              "msgDate": finalDate,
-                              "msgTime": finalTime
-                            };
-                            DatabaseMethods().sendMessage(
-                                roomId: this.widget.roomId, data: data);
-                            DatabaseMethods().setLastMessage(
-                                roomId: this.widget.roomId,
-                                msgDate: finalDate,
-                                msgTime: finalTime,
-                                phoneNo: user.phoneNo,
-                                msg: chatController.text);
+                            final msgProvider = context.read(databaseProviders);
+                            msgProvider.getUserId();
+                            msgProvider.message = chatController.text;
+                            msgProvider.roomId = widget.roomId;
+
+                            //   Map<String, dynamic> data = {
+                            //     "message": chatController.text,
+                            //     "sender": user.phoneNo,
+                            //     "time": DateTime.now().millisecondsSinceEpoch,
+                            //     "isLastMessage": false,
+                            //     "msgType": "text",
+                            //     "msgDate": finalDate,
+                            //     "msgTime": finalTime
+                            //   };
+                            //   DatabaseMethods().sendMessage(
+                            //       roomId: this.widget.roomId, data: data);
+                            //   DatabaseMethods().setLastMessage(
+                            //       roomId: this.widget.roomId,
+                            //       msgDate: finalDate,
+                            //       msgTime: finalTime,
+                            //       phoneNo: user.phoneNo,
+                            //       msg: chatController.text);
                             DatabaseMethods()
                                 .getNewMessageData(
                                     phone: user.phoneNo, roomId: widget.roomId)
