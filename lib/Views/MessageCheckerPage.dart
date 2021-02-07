@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sandesh/Controllers/HomePageController.dart';
 import 'package:sandesh/Controllers/MessageController.dart';
 import 'package:sandesh/Widgets/UserDisplayTile.dart';
 
@@ -21,8 +20,19 @@ class MessageCheckerPage extends StatelessWidget {
                           snapshot.data.documents[index]['users'],
                           "+919448046877");
                       return name != null
-                          ? UserDisplayTile(
-                              name: name, msg: "Hello There", time: "2.15")
+                          ? GestureDetector(
+                              onTap: () {
+                                controller.getChatMessages(
+                                    snapshot.data.documents[index]['name']);
+                                Get.toNamed("/chatDetailsPage");
+                              },
+                              child: UserDisplayTile(
+                                  name: name,
+                                  msg: snapshot
+                                      .data.documents[index]['lastMessage']
+                                      .toString(),
+                                  time: "2.15"),
+                            )
                           : Container();
                     },
                   )

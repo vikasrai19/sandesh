@@ -11,10 +11,12 @@ import 'package:sandesh/Models/User.dart';
 import 'HomePageController.dart';
 
 class MessageController extends GetxController {
+  final HomePageController homePageController = Get.find();
   List newList = Get.find<ContactListController>().contactList;
   final userModel = UserModel();
   final TextEditingController msgController = TextEditingController();
   Stream<QuerySnapshot> lastMessageSnapshot;
+  Stream<QuerySnapshot> chatMessageSnapshot;
   String phoneNo;
 
   @override
@@ -49,6 +51,24 @@ class MessageController extends GetxController {
           return newList[i]['name'];
         }
       }
+    }
+  }
+
+  sendMessage() {}
+
+  getChatMessages(String roomId) {
+    DatabaseMethods().getMessage(roomId: roomId).then((value) {
+      chatMessageSnapshot = value;
+      print("Message snapshot value $chatMessageSnapshot");
+      update();
+    });
+  }
+
+  checkMessageAlignment(String sender) {
+    if (sender == homePageController.phoneNo) {
+      return Alignment.centerRight;
+    } else {
+      return Alignment.centerLeft;
     }
   }
 }
