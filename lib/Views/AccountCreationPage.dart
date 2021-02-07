@@ -1,41 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_riverpod/all.dart';
-import 'package:sandesh/Pages/OTPPage.dart';
+import 'package:sandesh/Controllers/AccountCreationController.dart';
 
-class AccountCheckerProvider extends ChangeNotifier {
-  bool _isCorrect = false;
-
-  bool get isCorrect => _isCorrect;
-
-  setIsCorrectValue(bool value) {
-    _isCorrect = value;
-    notifyListeners();
-  }
-}
-
-class AccountCreation extends StatefulWidget {
-  @override
-  _AccountCreationState createState() => _AccountCreationState();
-}
-
-class _AccountCreationState extends State<AccountCreation> {
-  bool isCorrect = false;
-  TextEditingController numberController = new TextEditingController();
-
-  final accountCheckerProvider =
-      ChangeNotifierProvider((ref) => AccountCheckerProvider());
-
+class AccountCreationPage extends StatelessWidget {
+  final AccountController accountController = Get.find();
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
         child: Container(
-          height: size.height,
-          width: size.width,
+          height: Get.height,
+          width: Get.width,
           child: Stack(
             children: [
               Positioned(
@@ -45,7 +21,7 @@ class _AccountCreationState extends State<AccountCreation> {
                 child: Container(
                     padding:
                         EdgeInsets.symmetric(vertical: 10.0, horizontal: 32.0),
-                    height: size.height * 0.6,
+                    height: Get.height * 0.6,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -81,7 +57,7 @@ class _AccountCreationState extends State<AccountCreation> {
                 child: Container(
                     padding:
                         EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-                    height: size.height * 0.5,
+                    height: Get.height * 0.5,
                     decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.only(
@@ -113,24 +89,23 @@ class _AccountCreationState extends State<AccountCreation> {
                                         fontSize: 20.0,
                                         fontWeight: FontWeight.w400))),
                             SizedBox(width: 5.0),
-                            phoneNoTextField(size),
+                            phoneNoTextField(),
                           ],
                         ),
                         SizedBox(height: 20.0),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacement(
-                                context,
-                                CupertinoPageRoute(
-                                    builder: (context) => OTPPage(
-                                          phoneNumber:
-                                              "+91" + numberController.text,
-                                        )));
+                            if (accountController
+                                    .numberController.text.length ==
+                                10) {
+                              accountController.createUserAccount();
+                              Get.toNamed('/otpPage');
+                            }
                           },
                           child: Container(
                               alignment: Alignment.center,
                               height: 50.0,
-                              width: size.width * 0.5,
+                              width: Get.width * 0.5,
                               decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius:
@@ -150,45 +125,35 @@ class _AccountCreationState extends State<AccountCreation> {
     );
   }
 
-  Widget phoneNoTextField(Size size) {
-    return Consumer(builder: (context, watch, child) {
-      final accountNoChecker = watch(accountCheckerProvider);
-      return Container(
-        width: size.width * 0.65,
-        height: 50.0,
-        decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(10.0))),
-        child: TextFormField(
-          controller: numberController,
-          onChanged: (value) {
-            if (numberController.text.length != 0 && value.length != 10) {
-              context.read(accountCheckerProvider).setIsCorrectValue(false);
-            } else {
-              context.read(accountCheckerProvider).setIsCorrectValue(true);
-            }
-          },
-          style: GoogleFonts.montserrat(fontSize: 18.0),
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: "Enter Number",
-              hintStyle: GoogleFonts.montserrat(
-                fontSize: 18.0,
-                color: Colors.black.withOpacity(0.5),
-              ),
-              prefixIcon: Icon(Icons.mobile_friendly),
-              suffixIcon: Icon(
-                  accountNoChecker.isCorrect
-                      ? Icons.check_circle
-                      : Icons.close_rounded,
-                  color: numberController.text.length == 0
-                      ? Colors.transparent
-                      : accountNoChecker.isCorrect
-                          ? Colors.green
-                          : Colors.red)),
-        ),
-      );
-    });
+  Widget phoneNoTextField() {
+    return GetBuilder<AccountController>(
+      init: accountController,
+      builder: (controller) {
+        return Container(
+          width: Get.width * 0.65,
+          height: 50.0,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(10.0))),
+          child: TextFormField(
+            controller: accountController.numberController,
+            onChanged: (value) {
+              controller.suffixIconChecker();
+            },
+            style: GoogleFonts.montserrat(fontSize: 18.0),
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: "Enter Number",
+                hintStyle: GoogleFonts.montserrat(
+                  fontSize: 18.0,
+                  color: Colors.black.withOpacity(0.5),
+                ),
+                prefixIcon: Icon(Icons.mobile_friendly),
+                suffixIcon: controller.suffixIcon),
+          ),
+        );
+      },
+    );
   }
 }

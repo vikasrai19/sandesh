@@ -1,29 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sandesh/Helper/Database.dart';
-import 'package:sandesh/Helper/HelperFunctions.dart';
+import 'package:sandesh/Controllers/AccountCreationController.dart';
 
-import 'HomePage.dart';
-
-class DetailsPage extends StatefulWidget {
-  final String phoneNumber;
-  final String userUid;
-  const DetailsPage({Key key, this.phoneNumber, this.userUid})
-      : super(key: key);
-  @override
-  _DetailsPageState createState() => _DetailsPageState();
-}
-
-class _DetailsPageState extends State<DetailsPage> {
-  TextEditingController nameController = new TextEditingController();
+class DetailsPage extends StatelessWidget {
+  AccountController accountController = Get.find();
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
         child: Container(
-            height: size.height,
-            width: size.width,
+            height: Get.height,
+            width: Get.width,
             child: Stack(
               children: [
                 Positioned(
@@ -33,7 +21,7 @@ class _DetailsPageState extends State<DetailsPage> {
                   child: Container(
                       padding: EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 32.0),
-                      height: size.height * 0.6,
+                      height: Get.height * 0.6,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -67,7 +55,7 @@ class _DetailsPageState extends State<DetailsPage> {
                     left: 0,
                     right: 0,
                     child: Container(
-                      height: size.height * 0.6,
+                      height: Get.height * 0.6,
                       decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.only(
@@ -94,13 +82,13 @@ class _DetailsPageState extends State<DetailsPage> {
                           SizedBox(height: 50.0),
                           Container(
                             height: 50,
-                            width: size.width * 0.7,
+                            width: Get.width * 0.7,
                             decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10.0))),
                             child: TextFormField(
-                              controller: nameController,
+                              controller: accountController.nameController,
                               style: GoogleFonts.montserrat(
                                   fontSize: 20.0, color: Colors.black),
                               decoration: InputDecoration(
@@ -116,45 +104,12 @@ class _DetailsPageState extends State<DetailsPage> {
                           SizedBox(height: 20.0),
                           GestureDetector(
                             onTap: () {
-                              if (nameController.text.length != 0) {
-                                HelperFunction.saveUserName(
-                                    nameController.text);
-                                Map<String, dynamic> userMap = {
-                                  "userUid": widget.userUid,
-                                  "name": nameController.text,
-                                  "phoneNo": widget.phoneNumber,
-                                  "chatRoomList": []
-                                };
-                                DatabaseMethods().uploadUserInfo(
-                                    userMap: userMap,
-                                    userUid: widget.userUid,
-                                    phoneNo: widget.phoneNumber);
-                                // DatabaseMethods().getUserInfo(phoneNumber: widget.phoneNumber).then((value) {
-                                //   if (value == null) {
-                                //     Map<String, dynamic> userMap = {
-                                //       "userUid": widget.userUid,
-                                //       "name": nameController.text,
-                                //       "phoneNo": widget.phoneNumber,
-                                //       "chatRoomList": []
-                                //     };
-                                //     DatabaseMethods().uploadUserInfo(
-                                //         userMap: userMap,
-                                //         userUid: widget.userUid,
-                                //         phoneNo: widget.phoneNumber);
-                                //   }else{
-                                //     DatabaseMethods().updateUserInfo(updateMap:{"name": nameController.text}, userUid: widget.userUid, phoneNumber: widget.phoneNumber);
-                                //   }
-                                // });
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage()));
-                              }
+                              accountController.createAndUploadInfo();
                             },
                             child: Container(
                                 alignment: Alignment.center,
                                 height: 50,
-                                width: size.width * 0.5,
+                                width: Get.width * 0.5,
                                 decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.all(
