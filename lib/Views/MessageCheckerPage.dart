@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:sandesh/Controllers/MessageController.dart';
 import 'package:sandesh/Widgets/UserDisplayTile.dart';
 
+import 'ChatDetailsPage.dart';
+
 class MessageCheckerPage extends StatelessWidget {
   final messageController = Get.put(MessageController());
   @override
@@ -24,7 +26,9 @@ class MessageCheckerPage extends StatelessWidget {
                               onTap: () {
                                 controller.getChatMessages(
                                     snapshot.data.documents[index]['name']);
-                                Get.toNamed("/chatDetailsPage");
+                                // Get.toNamed("/chatDetailsPage",
+                                //     arguments: name);
+                                Get.to(ChatDetailsPage(name: name));
                               },
                               child: UserDisplayTile(
                                   name: name,

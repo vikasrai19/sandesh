@@ -11,18 +11,33 @@ import 'package:sandesh/Models/User.dart';
 import 'HomePageController.dart';
 
 class MessageController extends GetxController {
-  final HomePageController homePageController = Get.find();
+  // final HomePageController homePageController = Get.find();
   List newList = Get.find<ContactListController>().contactList;
   final userModel = UserModel();
   final TextEditingController msgController = TextEditingController();
   Stream<QuerySnapshot> lastMessageSnapshot;
   Stream<QuerySnapshot> chatMessageSnapshot;
   String phoneNo;
+  ScrollController msgScrollController = new ScrollController();
 
   @override
   void onInit() {
+    scrollControllerListener();
     fetchLastMessages();
     super.onInit();
+  }
+
+  // Listen for scroll controller
+  scrollControllerListener() {
+    msgScrollController.addListener(() {
+      print(msgScrollController.offset.toString());
+    });
+  }
+
+  // move to end of the list
+  scrollToEnd() {
+    msgScrollController.animateTo(msgScrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   fetchLastMessages() {
@@ -39,8 +54,9 @@ class MessageController extends GetxController {
   }
 
   String getName(List phoneNo, String myNo) {
+    final HomePageController homePageController = Get.find();
     print(
-        "The value of phone no from user model is  ${Get.find<HomePageController>().phoneNo}");
+        "The value of phone no from user model is  ${homePageController.phoneNo}");
     if (newList.length != 0) {
       print("New List length " + newList.length.toString());
       for (int i = 0; i < newList.length; i++) {
@@ -65,6 +81,7 @@ class MessageController extends GetxController {
   }
 
   checkMessageAlignment(String sender) {
+    final HomePageController homePageController = Get.find();
     if (sender == homePageController.phoneNo) {
       return Alignment.centerRight;
     } else {

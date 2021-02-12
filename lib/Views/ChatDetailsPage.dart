@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:sandesh/Widgets/ChatUserHeader.dart';
 
 import '../Controllers/MessageController.dart';
 import '../Widgets/MessageTile.dart';
-import '../Widgets/MessageTile.dart';
 
 class ChatDetailsPage extends StatelessWidget {
+  final String name;
+  ChatDetailsPage({this.name});
   final MessageController msgController = Get.find();
   @override
   Widget build(BuildContext context) {
+    msgController.scrollToEnd();
     return Scaffold(
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+          padding: EdgeInsets.only(bottom: 10.0),
           child: Stack(
             children: [
               Positioned(
@@ -29,20 +32,27 @@ class ChatDetailsPage extends StatelessWidget {
                     builder: (context, snapshot) {
                       return snapshot.hasData
                           ? ListView.builder(
-                              itemCount: snapshot.data.documents.length,
+                              controller: msgController.msgScrollController,
+                              physics: BouncingScrollPhysics(),
+                              itemCount: snapshot.data.documents.length + 1,
                               itemBuilder: (context, index) {
-                                return Container(
-                                  alignment:
-                                      msgController.checkMessageAlignment(
-                                          snapshot.data.documents[index]
-                                              ['sender']),
-                                  margin: EdgeInsets.only(bottom: 5.0),
-                                  child: MessageTile(
-                                      message: snapshot.data.documents[index]
-                                          ['message'],
-                                      sender: snapshot.data.documents[index]
-                                          ['sender']),
-                                );
+                                return index == 0
+                                    ? ChatUserHeader(name: this.name)
+                                    : Container(
+                                        alignment: msgController
+                                            .checkMessageAlignment(snapshot
+                                                    .data.documents[index - 1]
+                                                ['sender']),
+                                        margin: EdgeInsets.symmetric(
+                                            vertical: 3.0, horizontal: 10.0),
+                                        child: MessageTile(
+                                            message: snapshot
+                                                    .data.documents[index - 1]
+                                                ['message'],
+                                            sender: snapshot
+                                                    .data.documents[index - 1]
+                                                ['sender']),
+                                      );
                               },
                             )
                           : Container(
@@ -54,12 +64,13 @@ class ChatDetailsPage extends StatelessWidget {
               ),
               Positioned(
                 left: 0,
-                bottom: 0,
+                bottom: 0.0,
                 right: 0,
                 child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 5.0),
                   padding:
                       EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                  height: 60.0,
+                  height: 55.0,
                   width: Get.width * 0.9,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
@@ -85,8 +96,8 @@ class ChatDetailsPage extends StatelessWidget {
                         onTap: null,
                         child: Container(
                           alignment: Alignment.center,
-                          height: 60.0,
-                          width: 60.0,
+                          height: 50.0,
+                          width: 50.0,
                           decoration: BoxDecoration(
                               shape: BoxShape.circle, color: Colors.orange),
                           child: Icon(Icons.send, color: Colors.white),
