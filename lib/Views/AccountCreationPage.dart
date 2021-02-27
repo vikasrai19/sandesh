@@ -98,7 +98,7 @@ class AccountCreationPage extends StatelessWidget {
                             if (accountController
                                     .numberController.text.length ==
                                 10) {
-                              accountController.createUserAccount();
+                              // accountController.createUserAccount();
                               Get.toNamed('/otpPage');
                             }
                           },

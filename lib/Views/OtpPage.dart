@@ -7,6 +7,7 @@ class OTPPage extends StatelessWidget {
   AccountController accountController = Get.find();
   @override
   Widget build(BuildContext context) {
+    accountController.createUserAccount();
     return Scaffold(
       body: SafeArea(
         child: Container(

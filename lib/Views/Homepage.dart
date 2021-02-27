@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sandesh/Controllers/BottomNavigationController.dart';
 import 'package:sandesh/Controllers/HomePageController.dart';
+import 'package:sandesh/Controllers/MessageController.dart';
 
 class HomePage extends StatelessWidget {
   final bottomNavController = Get.put(BottomNavigationController());
   final homePageController = Get.put(HomePageController());
+  final messagController = Get.put(MessageController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(

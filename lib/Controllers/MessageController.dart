@@ -23,7 +23,7 @@ class MessageController extends GetxController {
   @override
   void onInit() {
     scrollControllerListener();
-    fetchLastMessages();
+    // fetchLastMessages();
     super.onInit();
   }
 

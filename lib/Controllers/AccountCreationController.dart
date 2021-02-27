@@ -30,6 +30,7 @@ class AccountController extends GetxController {
 
   // Creating new account and signing the user in
   createUserAccount() async {
+    print("createUserAccount called");
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: "+91" + numberController.text.toString(),
