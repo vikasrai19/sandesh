@@ -18,8 +18,8 @@
 
 ### Progress : 
 * User Authentication 
-    * [ ✅ ] Design a page to get user phone number
-    * [ ✅ ] Get the phone Number and create  a new user account in firebase
+    * [✅] Design a page to get user phone number
+    * [✅] Get the phone Number and create  a new user account in firebase
     * [ ✅ ] Design a page to take name from the user
     * [ ✅ ] After getting all the details about the user, store the user data in database
         * [ ✅ ] And also mark the user as signed in and save the sign in state in shared preferences
