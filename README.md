@@ -20,18 +20,18 @@
 * User Authentication 
     * [✅] Design a page to get user phone number
     * [✅] Get the phone Number and create  a new user account in firebase
-    * [ ✅ ] Design a page to take name from the user
-    * [ ✅ ] After getting all the details about the user, store the user data in database
-        * [ ✅ ] And also mark the user as signed in and save the sign in state in shared preferences
-        * [ ✅ ] Store user name, user uid and user profile image url in shared preferences
+    * [✅] Design a page to take name from the user
+    * [✅] After getting all the details about the user, store the user data in database
+        * [✅] And also mark the user as signed in and save the sign in state in shared preferences
+        * [✅] Store user name, user uid and user profile image url in shared preferences
 
-    * [ ✅ ] Whenever the app opens, check for the user's sign in state, if signed in alrady, just load the home page of the app
-    * [ ✅ ] Also provide the feature of logging out of the account.
+    * [✅] Whenever the app opens, check for the user's sign in state, if signed in alrady, just load the home page of the app
+    * [✅] Also provide the feature of logging out of the account.
     
 * Messaging
-    * [ ✅ ] Creating a home page as a entry page to the app
-    * [ ✅ ] Creating three tabs -> each for Message, Stores and Profile
-    * [ ✅ ] Display all the new messages in the order of new in the first
+    * [✅] Creating a home page as a entry page to the app
+    * [✅] Creating three tabs -> each for Message, Stores and Profile
+    * [✅] Display all the new messages in the order of new in the first
         * [ ] Create a chat tile
         * [ ] Display the other user profile image if present
         * [ ] Display name of the user, according to the contact
@@ -40,10 +40,10 @@
         * [ ] Display the time of last message
         * [ ] Option to archive any chat
         * [ ] option to delete the entire chat
-    * [ ✅ ] Create a chat page, for users to chat
-        * [ ✅ ] Text support message
-            * [ ✅ ] Send a text message
-            * [ ✅ ] Receive a text message
+    * [✅] Create a chat page, for users to chat
+        * [✅] Text support message
+            * [✅] Send a text message
+            * [✅] Receive a text message
         * [ ] Image support 
             * [ ] Send an image
             * [ ] Receive an image
