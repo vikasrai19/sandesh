@@ -5,7 +5,9 @@ class StatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        child: Center(child: Text("StatusPage")),
+        child: Center(
+          child: Text("This is status page"),
+        ),
       ),
     );
   }
