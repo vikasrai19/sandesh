@@ -47,28 +47,8 @@ class OTPPage extends StatelessWidget {
               height: 20.0,
             ),
             ElevatedButton(
-              onPressed: () async {
-                try {
-                  if (accountController.otpController.text.length == 6 &&
-                      accountController.smsCode != null) {
-                    print("[THIS IS FROM OTP PAGE]");
-                    print("[VERIFICATION ID] " +
-                        accountController.verificationID);
-                    await accountController.auth.signInWithCredential(
-                      PhoneAuthProvider.credential(
-                        verificationId: accountController.verificationID,
-                        smsCode:
-                            accountController.otpController.text.toString(),
-                      ),
-                    );
-                    print("[USER UID]" + accountController.getUserUid());
-                  }
-                  Get.to(DetailsPage());
-                } catch (e) {
-                  print("Please enter a proper otp");
-                  print("[EXCEPTION] " + e.toString());
-                  Get.snackbar("Error", "Please enter your OTP correctly");
-                }
+              onPressed: () {
+                accountController.manualSignIn();
               },
               child: Text("VERIFY OTP"),
             ),

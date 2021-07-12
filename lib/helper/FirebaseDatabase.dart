@@ -22,6 +22,11 @@ class FirebaseDatabase {
         });
   }
 
+  // TODO: Getting the list of all the users registered in SANDESH
+  getUsers() async {
+    return FirebaseFirestore.instance.collection('Users').get();
+  }
+
   // creating a chat room
   createChatRoom({String phone1, String phone2}) {
     if (phone1.length == 12) {

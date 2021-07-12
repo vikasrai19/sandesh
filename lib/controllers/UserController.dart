@@ -11,7 +11,8 @@ class UserController extends GetxController {
 
   @override
   void onInit() {
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(Duration(seconds: 2), () {
+      print("[USER CONTROLLER INITIALIZED]");
       setUserValue();
     });
     super.onInit();
@@ -20,13 +21,28 @@ class UserController extends GetxController {
   // Setting users value on the app startup
   void setUserValue() {
     LocalDatabaseController controller = Get.find();
-    controller.getUserData().then((value) {
-      name = value[0]['name'];
-      phoneNo = value[0]['phoneNo'];
-      dob = value[0]['dob'];
-      profileImg = value[0]['profileImg'];
-      userUid = value[0]['userUid'];
-      update();
+    Future.delayed(Duration(seconds: 1), () {
+      print("[FROM SET USER FUNCTION INSIDE THE USER CONTROLLER");
+      // controller.getUserData();
+      controller.getUserData().then((value) {
+        print(value.length.toString());
+        print("[VALUE] : " + value.toString());
+        if (value != null) {
+          print("VALUE NOT NULL");
+          print(value.length.toString());
+          if (value.length != 0) {
+            print("[NAME}: " + value[0]['name'].toString());
+            name = value[0]['name'].toString();
+            userUid = value[0]['userUid'].toString();
+            phoneNo = value[0]['phoneNo'].toString();
+            dob = value[0]['dob'].toString();
+            profileImg = value[0]['profileImg'].toString();
+            update();
+          }
+        } else {
+          print("[USER DATA NOT FOUND IN LOCAL DATABASE]");
+        }
+      });
     });
   }
 }

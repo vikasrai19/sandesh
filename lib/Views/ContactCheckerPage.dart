@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sandesh/controllers/AccountCreationController.dart';
 import 'package:sandesh/controllers/ContactController.dart';
-import 'package:sandesh/controllers/HomePageController.dart';
-import 'package:sandesh/controllers/LocalDatabaseController.dart';
-import 'package:sandesh/controllers/UserController.dart';
 
-class HomePage extends StatelessWidget {
-  final LocalDatabaseController controller = Get.find();
-  final AccountCreationController accountController = Get.find();
-
-  final userController = Get.put(UserController());
-  final contactController = Get.put(ContactController());
-  final homePageController = Get.put(HomePageController());
+class ContactCheckerPage extends StatelessWidget {
+  final ContactController contactController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,36 +53,48 @@ class HomePage extends StatelessWidget {
                       SizedBox(
                         height: 20.0,
                       ),
-                      TextField(
-                        controller: homePageController.chatSearchController,
-                        decoration: InputDecoration(
-                          prefixIcon:
-                              Icon(Icons.search, color: Colors.white, size: 28),
-                          hintText: "Search",
-                          hintStyle: TextStyle(
-                            color: Colors.white,
-                          ),
-                          isDense: true,
-                          contentPadding: EdgeInsets.all(10.0),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(50.0),
+                      GetX<ContactController>(builder: (controller) {
+                        return TextField(
+                          controller: controller.contactSearchController,
+                          onChanged: (val) => controller.searchContacts(val),
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: Colors.white,
+                              size: 28,
                             ),
-                            borderSide: BorderSide(
+                            suffixIcon: controller.contactSearchController.text.length == 0
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: controller.clearSearch(),
+                                    child: Icon(Icons.border_clear_outlined),
+                                  ),
+                            hintText: "Search",
+                            hintStyle: TextStyle(
                               color: Colors.white,
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(50.0),
+                            isDense: true,
+                            contentPadding: EdgeInsets.all(10.0),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                              ),
                             ),
-                            borderSide: BorderSide(
-                              color: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(50.0),
+                              ),
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                              ),
                             ),
+                            fillColor: Colors.white,
                           ),
-                          fillColor: Colors.white,
-                        ),
-                      ),
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -101,16 +104,17 @@ class HomePage extends StatelessWidget {
               left: 0,
               right: 0,
               top: Get.height * 0.18,
-              child: GetBuilder<HomePageController>(builder: (controller) {
+              child: GetBuilder<ContactController>(builder: (controller) {
                 return ClipRRect(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
                     topRight: Radius.circular(20.0),
                   ),
-                  child: Container(
-                    height: Get.height * 0.83,
-                    width: Get.width,
-                    child: controller.children[controller.currentIndex],
+                  // TODO: Add a list to display all contacts that are registered in SANDESH
+                  child: GetX<ContactController>(
+                    builder: (controller) {
+                      return controller.searchChild();
+                    },
                   ),
                 );
               }),
@@ -118,17 +122,6 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar:
-          GetBuilder<HomePageController>(builder: (controller) {
-        return BottomNavigationBar(
-          currentIndex: controller.currentIndex,
-          items: controller.navItems,
-          onTap: controller.onTabTapped,
-          elevation: 5,
-          selectedItemColor: Theme.of(context).primaryColor,
-          unselectedItemColor: Colors.grey[300],
-        );
-      }),
     );
   }
 }

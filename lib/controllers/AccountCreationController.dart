@@ -8,7 +8,8 @@ import 'package:sandesh/controllers/LocalDatabaseController.dart';
 import 'package:sandesh/helper/FirebaseDatabase.dart';
 import 'package:sandesh/helper/helper_function.dart';
 import 'package:sandesh/models/UserModel.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'HomePageController.dart';
 
 class AccountCreationController extends GetxController {
   TextEditingController phoneController = new TextEditingController();
@@ -44,24 +45,22 @@ class AccountCreationController extends GetxController {
       codeSent: (verificationId, [resendToken]) async {
         print("Sending verification code");
         // Waiting for the user to enter the otp
-        print("[VERIFICATIO ID]" + verificationId);
         if (otpController.text.length != 0) {
           smsCode = otpController.text.toString();
-          print("[SMS CODE] :" + smsCode.toString());
         }
         verificationID = verificationId;
         // Creating a PhoneAuthCredentials with the code
 
         try {
           PhoneAuthCredential phoneAuthCredential =
-              PhoneAuthProvider.credential(
-                  verificationId: verificationId, smsCode: smsCode);
+              PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
 
           // Sign in the user with the credential
           await auth.signInWithCredential(phoneAuthCredential);
           print("[SMS CODE] " + smsCode);
           uid = getUserUid();
         } catch (e) {
+          print("[THIS EXCEPTION IS FROM AUTO MATIC SIGNIN BY FIREBASE]");
           print("[EXCEPTION] " + e.toString());
         }
       },
@@ -73,9 +72,33 @@ class AccountCreationController extends GetxController {
     );
   }
 
+  // Manually signing in the user
+  manualSignIn() async {
+    try {
+      if (accountController.otpController.text.length == 6 &&
+          accountController.smsCode != null &&
+          verificationID != null) {
+        print("[THIS IS FROM OTP PAGE]");
+        print("[VERIFICATION ID] " + accountController.verificationID);
+        PhoneAuthCredential authCredential = await PhoneAuthProvider.credential(
+            verificationId: accountController.verificationID,
+            smsCode: accountController.otpController.text.toString());
+        await accountController.auth.signInWithCredential(authCredential).catchError((error) {
+          print("[ERROR]" + error.toString());
+          print("Login Successful");
+          Get.to(DetailsPage());
+        });
+      }
+      Get.to(DetailsPage());
+    } catch (e) {
+      print("Please enter a proper otp");
+      print("[EXCEPTION] " + e.toString());
+      Get.snackbar("Error", "Please enter your OTP correctly");
+    }
+  }
+
   String getUserUid() {
     final User user = auth.currentUser;
-    print("[USER UID] " + user.uid.toString());
     return user.uid.toString();
   }
 
@@ -89,6 +112,7 @@ class AccountCreationController extends GetxController {
   // Displaying calendar to pick date
   Future<void> selectDate(BuildContext context) async {
     DateTime currentDate = DateTime.now();
+
     final DateTime pickedDate = await showDatePicker(
       context: context,
       initialDate: currentDate,
@@ -133,11 +157,15 @@ class AccountCreationController extends GetxController {
 
   // Signing out the user
   signOut() {
+    final HomePageController homePageController = Get.find();
     HelperFunction.storeUserSignedInState(false);
     LocalDatabaseController controller = Get.find();
     var sample = getUserUid();
     controller.deleteUserData(userUid: getUserUid().toString());
+    controller.deleteContactsFromDB();
     print(controller.getUserData().toString());
+    auth.signOut();
+    homePageController.currentIndex = 0;
     Get.offAll(AccountCreationPage());
   }
 }

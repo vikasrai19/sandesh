@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:path/path.dart';
+import 'package:sandesh/models/ContactModel.dart';
 import 'package:sandesh/models/UserModel.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -33,17 +34,21 @@ class LocalDatabaseController extends GetxController {
     await sqlDatabase.execute(
       "CREATE TABLE message(sender TEXT NOT NULL, msg TEXT NOT NULL, msgType TEXT, isMessageDel INTEGER, isMessageRead INTEGER, messageSentTime TEXT, messageDelTime TEXT, messageReadTime TEXT)",
     );
+
+    // Table to store contacts from mobile contacts in sqflite database
+    await sqlDatabase.execute(
+        "CREATE TABLE contacts(name TEXT NOT NULL, phoneNo TEXT PRIMARY KEY)");
   }
 
   //  Method to add user data into the local database
   addUserData(UserModel user) async {
+    print("[ADD USER DATA] called");
     try {
-      List<Map> val = await getUserData();
+      List<UserModel> val = await getUserData();
+      print("[VAL] from adduserData" + val.toString());
       if (val.length == 0) {
-        var result = await sqlDatabase.rawInsert(
-          "INSERT INTO User(userUid, name, phoneNo, dob, profileImg) "
-          "VALUES('${user.userUid}', '${user.name}', '${user.phoneNo}', '${user.dob}', '${user.profileImg}');",
-        );
+        var result = await sqlDatabase.insert('User', user.toJson());
+        print("[ADDUSERDATA]: " + result.toString());
         print("[USER LIST IN DATABASE]" + getUserData().toString());
         return result;
       }
@@ -54,11 +59,10 @@ class LocalDatabaseController extends GetxController {
 
   // Method to get user data from the database
   Future<List> getUserData() async {
+    print("Called getUserData ");
     try {
-      List<Map> result = await sqlDatabase.rawQuery('SELECT * FROM User');
-      print("[DATABASE VALUE]" + result.toString());
-      print("[DATABASE VALUE LENGTH] " + result.length.toString());
-      return result;
+      List res = await sqlDatabase.query('User');
+      return res;
     } catch (e) {
       print("[EXCEPTION] " + e.toString());
     }
@@ -69,6 +73,46 @@ class LocalDatabaseController extends GetxController {
     try {
       return await sqlDatabase
           .rawQuery("DELETE FROM User WHERE userUid = '$userUid'");
+    } catch (e) {
+      print("[EXCEPTION] " + e.toString());
+    }
+  }
+
+  // Get contacts data from sqflite database
+  Future<List> getContactList() async {
+    try {
+      // return await sqlDatabase.rawQuery("SELECT * from contacts");
+      var res = await sqlDatabase.query('contacts');
+      print("[FROM GETCONTACTLIST FUNCTION]");
+      print("[RES]: " + res.toString());
+      List<ContactModel> contacts = res.isNotEpty
+          ? res.map((contact) => ContactModel.fromJson(contact)).toList()
+          : [];
+      return contacts;
+    } catch (e) {
+      print("[EXCEPTION]: " + e.toString());
+    }
+  }
+
+  // Add new contacts to localdatabase
+  addContactsToDB() async {
+    try {
+      Future<List<Map>> ct = getContactList();
+      List<Map> ctList = await ct;
+      if (ctList.length == 0) {
+        // TODO: No data is present. So add all the values into the table
+      } else {
+        // TODO: Some data is present. Compare and add data which are not present
+      }
+    } catch (e) {
+      print("[EXCEPTION]: " + e.toString());
+    }
+  }
+
+  // Delete all the contacts from db
+  deleteContactsFromDB() async {
+    try {
+      var res = await sqlDatabase.rawQuery("DELETE FROM contacts");
     } catch (e) {
       print("[EXCEPTION] " + e.toString());
     }

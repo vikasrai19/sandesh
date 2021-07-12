@@ -5,8 +5,8 @@ import 'package:sandesh/widgets/AccountCreationBackground.dart';
 
 import 'OTPPage.dart';
 
+final AccountCreationController accountController = Get.find();
 class AccountCreationPage extends StatelessWidget {
-  AccountCreationController accountController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
